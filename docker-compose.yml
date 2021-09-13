@@ -1,0 +1,46 @@
+version: '3'
+services:
+  web:
+    build: .
+    image: bluecoding
+    env_file:
+      - '.env'
+    volumes:
+      - '.:/app'
+    ports:
+      - '5000:5000'
+    depends_on:
+      - redis
+  worker:
+    image: bluecoding
+    command: flask rq worker --worker-ttl 420
+    volumes:
+      - .:/var/www/worker
+    depends_on:
+      - redis
+    links:
+     - redis
+  scheduler:
+    image: bluecoding
+    command: flask rq scheduler
+    volumes:
+      - .:/var/www/scheduler
+    depends_on:
+      - redis
+    links:
+     - redis
+  dashboard:
+    image: eoranged/rq-dashboard
+    ports:
+      - '9181:9181'
+    environment:
+      - RQ_DASHBOARD_REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    links:
+     - redis
+  redis:
+    image: 'redis:4.0-alpine'
+    command: redis-server
+    ports:
+      - '6379:6379'

@@ -1,0 +1,8 @@
+-r base.txt
+
+black
+flake8
+flask-shell-ipython
+ipdb
+isort
+pylint
